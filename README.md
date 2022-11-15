@@ -23,6 +23,6 @@ GitHub repository to collect all the materials for a workshop given by Mark D. R
 | 12.00-13.00  | lunch break |  |
 | 13.00-14.20  | differential abundance, differential state | session3_da-ds |
 | 14.20-14.40  | coffee break |  |
-| 14.40-16.00  | trajectories, variations of DA/DS, wrap-up | session3_advanced |
+| 14.40-16.00  | trajectories, variations of DA/DS, wrap-up | session4_advanced |
 | 16.00  | hard stop | |
 | 16.13  | ICE75 @ Freiburg Hbf | |
