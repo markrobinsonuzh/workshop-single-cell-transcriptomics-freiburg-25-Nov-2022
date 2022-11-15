@@ -17,9 +17,9 @@ GitHub repository to collect all the materials for a workshop given by Mark D. R
 
 | Time  | Topic | Material |
 | --- |  --- | --- |
-| 08.30-10.00  | preliminaries | session1_preliminaries |
-| 10.00-10.30  | coffee break |  |
-| 10.30-12.00  | QC, normalization, visualization | session2_qc-normalization-viz  |
+| 09.00-10.20  | preliminaries | session1_preliminaries |
+| 10.20-10.40  | coffee break |  |
+| 10.40-12.00  | QC, normalization, visualization | session2_qc-normalization-viz  |
 | 12.00-13.00  | lunch break |  |
 | 13.00-14.20  | differential abundance, differential state | session3_da-ds |
 | 14.20-14.40  | coffee break |  |
