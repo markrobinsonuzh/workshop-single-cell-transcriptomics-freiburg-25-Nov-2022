@@ -7,7 +7,11 @@ GitHub repository to collect all the materials for a workshop given by Mark D. R
 - Install [R 4.2.x](https://ftp.fau.de/cran/), [RStudio (now Posit)](https://posit.co/download/rstudio-desktop/)
 - Install [Bioconductor 3.15 (or higher) packages](https://bioconductor.org/install/)
 - Install [`workflowR`](https://github.com/workflowr/workflowr) / [`quarto`](https://quarto.org/docs/get-started/hello/rstudio.html)
-- GitHub
+- Connect with [GitHub](https://github.com/) ?
+
+# Some useful resources
+
+- TODO: add links here
 
 # Tentative schedule
 
@@ -15,9 +19,10 @@ GitHub repository to collect all the materials for a workshop given by Mark D. R
 | --- |  --- | --- |
 | 08.30-10.00  | preliminaries | session1_preliminaries |
 | 10.00-10.30  | coffee break |  |
-| 10.30-12.00  | QC, normalization, visualization |  |
+| 10.30-12.00  | QC, normalization, visualization | session2_qc-normalization-viz  |
 | 12.00-13.00  | lunch break |  |
-| 13.00-14.30  | differential abundance, differential state |  |
-| 14.30-15.00  | coffee break | session1_preliminaries |
-| 15.00-16.00  | advanced topics: trajectories, variations of DA/DS |
-| 16.30  | departure | |
+| 13.00-14.20  | differential abundance, differential state | session3_da-ds |
+| 14.20-14.40  | coffee break |  |
+| 14.40-16.00  | trajectories, variations of DA/DS, wrap-up | session3_advanced |
+| 16.00  | hard stop | |
+| 16.13  | ICE75 @ Freiburg Hbf | |
