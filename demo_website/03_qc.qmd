@@ -1,0 +1,106 @@
+---
+title: "03_qc"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(scuttle)
+library(scater)
+library(ggplot2)
+library(scran)
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+sce <- readRDS(file.path(data_dir, "sce_lightly-filtered.rds"))
+```
+
+# calculate QC metrics
+
+```{r}
+# # extract gene names from biomaRt
+# mart <- useEnsembl(dataset = "mmusculus_gene_ensembl", biomart='ensembl')
+# # la <- listAttributes(mart)
+# # head(la, 20)
+# gene <- getBM(attributes=c('ensembl_gene_id','external_gene_name'), 
+#               filters = 'ensembl_gene_id', 
+#               values = rownames(sce), 
+#               mart = mart)
+# grep("^mt", gene$external_gene_name, value = TRUE)
+
+rowData(sce)[grep("^mt", rowData(sce)$Symbol),]
+
+# add gene names to rowData
+is.mito <- grepl("^mt", rowData(sce)$Symbol)
+table(is.mito)
+
+qc <- perCellQCMetrics(sce, subsets=list(Mito=is.mito))
+
+head(qc)
+
+```
+
+# plot some QC
+
+```{r}
+# get rid of genes w/ no counts
+ggplot(as.data.frame(qc), 
+       aes(x=total, y=detected, colour=subsets_Mito_percent)) + 
+  geom_point() +
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  geom_density2d()
+
+ggplot(as.data.frame(qc),
+       aes(x=detected, y=subsets_Mito_percent)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_sqrt() +
+  geom_density2d()
+
+outlier_total <- isOutlier(log(qc$total), nmads=2.5, 
+                           type = "both")
+outlier_mito <- isOutlier(qc$subsets_Mito_percent, nmads=3, 
+                          type = "higher")
+
+ggplot(as.data.frame(qc),
+       aes(x=detected, colour=outlier_total)) +
+  geom_density() +
+  xlim(c(0,4000))
+  # scale_x_sqrt()
+  
+
+ggplot(as.data.frame(qc),
+       aes(x=detected, y=subsets_Mito_percent,
+           shape=outlier_total, colour=outlier_mito)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_sqrt()
+
+keep <- !(outlier_total | outlier_mito)
+table(keep)
+
+sce <- sce[,keep]
+
+```
+
+# save RDS
+
+```{r}
+saveRDS(sce, file = file.path(data_dir, "sce_qc-filtered.rds"))
+```
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```

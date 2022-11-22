@@ -1,0 +1,26 @@
+project:
+  type: website
+
+toc: true
+number-sections: true
+
+website:
+  title: "Freiburg Workshop"
+  navbar:
+    left:
+      - href: 01_loaddata.qmd
+        text: Load-Data
+      - href: 02_lightfilter.qmd
+        text: Light-Filter
+      - href: 03_QC.qmd
+        text: QC
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+

@@ -1,0 +1,54 @@
+---
+title: "02_lightfilter"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+sce <- readRDS(file.path(data_dir, "sce_unfiltered.rds"))
+```
+
+# easy filter
+
+```{r}
+dim(sce)
+
+# get rid of genes w/ no counts
+rs <- rowSums(counts(sce))
+hist(log(rs+1), 200)
+sce <- sce[rs>0,]
+
+# get rid of cells w/ low counts
+cs <- colSums(counts(sce)>0)
+hist(cs, 200)
+abline(v=500, col="blue", lwd=4)
+sce <- sce[,cs>500]
+
+dim(sce)
+```
+
+
+# save RDS
+
+```{r}
+saveRDS(sce, file = file.path(data_dir, "sce_lightly-filtered.rds"))
+```
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```
+

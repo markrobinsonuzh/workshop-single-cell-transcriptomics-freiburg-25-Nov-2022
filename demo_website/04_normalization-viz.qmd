@@ -1,0 +1,175 @@
+---
+title: "03_qc"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(scuttle)
+library(scater)
+library(scran)
+# library(biomaRt)
+library(bluster)
+library(dplyr)
+library(ggplot2)
+library(scDblFinder)
+library(pheatmap)
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+sce <- readRDS(file.path(data_dir, "sce_qc-filtered.rds"))
+```
+
+
+
+# normalization, feature selection, dim reduction, clustering
+
+```{r}
+sce <- logNormCounts(sce)
+
+
+mv <- modelGeneVar(sce)
+
+hvgs <- getTopHVGs(mv, n=2000)
+
+
+
+system.time(sce <- runPCA(sce, subset_row=hvgs, ncomponents=30))
+
+# system.time(clust <- clusterCells(sce, use.dimred="PCA"))
+
+# clust <- clusterCells(sce, use.dimred="PCA",
+#                       BLUSPARAM=NNGraphParam(cluster.fun="walktrap",
+#                                              k=20))
+
+clust1 <- clusterCells(sce, use.dimred="PCA",
+                      BLUSPARAM=NNGraphParam(cluster.fun="louvain",
+                                             k=20))
+
+
+clust2 <- fastcluster(sce)
+
+table(clust1, clust2)
+
+mclust::adjustedRandIndex(clust1, clust2)
+
+colData(sce)$cluster <- as.factor(clust2)
+
+
+system.time(sce <- runUMAP(sce))
+
+
+plotUMAP(sce, colour_by="cluster")
+
+```
+
+# find marker genes
+
+```{r}
+fm <- findMarkers(sce, colData(sce)$cluster, 
+                  test.type="wilcox", direction="up",
+                  lfc=1, pval.type="some")
+
+fm <- findMarkers(sce, colData(sce)$cluster,
+                  test.type="wilcox", direction="up",
+                  lfc=2, pval.type="some")
+
+plotExpression(sce, "ENSMUSG00000052551", 
+               x = "cluster",
+               colour_by = "cluster")
+
+plotUMAP(sce, colour_by = "ENSMUSG00000052551")
+
+markers <- lapply(fm, function(u) rownames(u)[1:50])
+markers <- unique(unlist(markers))
+
+
+# or limma+entropy
+expr <- logcounts(sce)
+
+rr <- rowRanges(expr)
+rr <- rr[,2]-rr[,1]
+
+mm <- model.matrix(~as.factor(clust))
+f <- lmFit(expr, mm)
+f <- eBayes(f, trend=TRUE)
+
+# counts per gene/cluster
+agg <- aggregateAcrossCells(sce, clust)
+cpms <- edgeR::cpm(agg)
+props <- proportions(cpms, 1)
+
+entropy <- function(p) {
+  p <- p[p>0]
+  -sum(p*log(p))
+}
+
+ents <- apply(props, 1, entropy)
+
+df <- data.frame(F=f$F, entropy=ents, 
+                 avg=f$Amean, range=rr)
+
+
+ggplot(df, aes(x=F, y=entropy, colour=rr)) + 
+  geom_point() +
+  scale_x_log10()
+
+ggplot(df, aes(x=avg, y=entropy, colour=log(F))) + 
+  geom_point() +
+  scale_x_log10()
+
+
+with(df, table(F>50 & entropy<1.5 & range > 3))
+
+
+
+# randomly select up to 100 cells in each cluster
+inds <- split(seq_len(ncol(sce)), clust)
+lapply(inds, head)
+
+inds_s <- lapply(inds, sample, 50, replace=FALSE)
+lengths(inds_s)
+s <- unlist(inds_s)
+
+
+keep <- df$F>80 & df$entropy<1 &df$range>3
+expr <- logcounts(sce)[keep,s]
+
+dim(expr)
+
+rownames(expr) <- rowData(sce)$Symbol[keep]
+
+expr <- as.matrix(expr)
+
+pheatmap(expr)
+pheatmap(expr, scale="row")
+
+acol = data.frame(cluster = as.factor(clust[s]))
+
+
+pheatmap(expr, cluster_cols = FALSE,
+         annotation_col = acol, 
+         clustering_distance_rows = "correlation")
+
+pheatmap(expr, cluster_cols = FALSE,
+         annotation_col = acol)
+
+# https://www.biorxiv.org/content/10.1101/2022.05.09.490241v2
+
+
+```
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```
