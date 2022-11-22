@@ -1,12 +1,13 @@
 # To cover
 
-- introduction, ice breaker, yopad
-- install bioconductor packages (`BiocManager::install(..)`)
-- `quarto` / `workflowR`, RStudio projects
+- introduction, ice breaker, [yopad](https://yopad.eu/p/freiburg-scrnaseq-workshop)
+- setup: bioconductor packages (`BiocManager::install(..)`)
+- `quarto`, RStudio projects
 - connection to git?
-- renku as backup
 - handling Bioconductor objects: `SingleCellExperiment` (slides)
-- exercise: make a website with `quarto` 
-  (1st file: reads in 10x data, save `SummarizedExperiment` in RDS; 2nd file: read RDS, make plot)
 - options (focus here on BioC, but many choices!)
+- renku as backup
 
+- exercise: make a website with `quarto` 
+  (1st file: read in 10x data (data provided) OR find dataset in the `scRNAseq` package, save `SummarizedExperiment` in RDS; 
+   2nd file: read RDS, make histograms of the cell counts and gene counts)

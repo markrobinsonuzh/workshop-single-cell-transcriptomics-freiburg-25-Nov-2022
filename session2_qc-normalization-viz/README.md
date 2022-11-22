@@ -9,4 +9,7 @@
 - clustering
 - viz
 - find marker genes
-- exercise: use your own or pick a dataset from 
+
+- exercise: use your own dataset, use LC026, or pick a dataset from `scRNAseq` (suggestion: use a dataset with 1 sample to avoid batches)
+
+
