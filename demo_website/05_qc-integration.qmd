@@ -1,0 +1,184 @@
+---
+title: "05_multisample-qc-integration"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(scater)
+library(scDblFinder)
+library(SingleCellExperiment)
+library(batchelor)
+
+# library(scuttle)
+# library(scran)
+# # library(biomaRt)
+# library(bluster)
+# library(dplyr)
+# library(ggplot2)
+# library(scDblFinder)
+# library(pheatmap)
+# library(readxl)
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+sce <- readRDS(file.path(data_dir, "1-SCE_reduced.rds"))
+dim(sce)
+
+# dirs <- dir(rawdata_dir, pattern="LC")
+# sce <- read10xCounts(dirs)
+# 
+# cd <- colData(sce) %>% as.data.frame %>% 
+#   mutate(SampleID=basename(Sample))
+# 
+# md <- read_excel(file.path(rawdata_dir, "metadata.xlsx"))
+# 
+# cd %>% 
+#   left_join(md %>% select(SampleID, Condition)) %>%
+#   mutate(CellID = paste0(SampleID,"_",Barcode)) %>%
+#   select(-Sample) %>%
+#   DataFrame -> colData(sce)
+
+
+```
+
+# doublet removal, QC filtering
+
+```{r}
+system.time(sce <- scDblFinder(sce, samples = sce$sample_id))
+table(sce$scDblFinder.class)
+
+sce <- sce[, sce$scDblFinder.class != "doublet"]
+dim(sce)
+
+
+# compute cell & gene QC metrics
+(mito <- grep("mt-", rownames(sce), value = TRUE))
+sce <- addPerCellQC(sce, subsets = list(Mt = mito))
+sce <- addPerFeatureQC(sce)
+
+ol1 <- isOutlier(sce$total, nmads = 3, type = "both", log = TRUE, batch = sce$sample_id)
+ol2 <- isOutlier(sce$detected, nmads = 3, type = "both", log = TRUE, batch = sce$sample_id)
+ol3 <- isOutlier(sce$subsets_Mt_percent, nmads = 3, type = "higher") & sce$subsets_Mt_percent > 0.08
+
+table(ol1 | ol2 | ol3)
+
+sce <- sce[, !(ol1 | ol2 | ol3)]
+dim(sce)
+```
+
+
+# integration
+
+```{r}
+
+sce <- logNormCounts(sce)
+
+sce_nocorrect <- correctExperiments(sce, batch=sce$sample_id,
+                                    PARAM=NoCorrectParam())
+
+mgv <- modelGeneVar(sce_nocorrect, block=sce_nocorrect$sample_id)
+hvgs <- getTopHVGs(mgv, n=1500)
+
+system.time(sce_nocorrect <- runPCA(sce_nocorrect, 
+                                    subset_row=hvgs, ncomponents=30))
+system.time(sce_nocorrect <- runUMAP(sce_nocorrect, dimred="PCA"))
+
+
+plotUMAP(sce_nocorrect, colour_by="sample_id")
+
+
+library(batchelor)
+set.seed(101)
+system.time(sce_fastmnn <- fastMNN(sce, 
+                                   batch=sce$sample_id,
+                                   subset.row=hvgs))
+sce_fastmnn
+sce_fastmnn <- runUMAP(sce_fastmnn, dimred="corrected")
+
+plotUMAP(sce_fastmnn, colour_by="batch")
+
+
+# compare to annotated
+sce_anno <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
+
+
+
+```
+
+
+```{r}
+
+library(bluster)
+library(scran)
+
+# system.time(clust <- clusterCells(sce_fastmnn, use.dimred="corrected"))
+
+system.time(fc <- fastcluster(sce_fastmnn, rdname = "corrected", ndims=20, k=500))
+
+colData(sce_fastmnn)$cluster_fast <- as.factor(fc)
+plotUMAP(sce_fastmnn, colour_by="cluster_fast")
+
+system.time(cc <- clusterCells(sce_fastmnn, use.dimred="corrected",
+                   BLUSPARAM=NNGraphParam(cluster.fun="louvain",k=20)))
+
+colData(sce_fastmnn)$cluster_louvain <- as.factor(cc)
+plotUMAP(sce_fastmnn, colour_by="cluster_louvain")
+
+
+
+# check on clustering versus manual annotation
+sce_anno <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
+
+common_cells <- intersect(colnames(sce_fastmnn), 
+                          colnames(sce_anno))
+
+m_fastmnn <- match(common_cells, colnames(sce_fastmnn))
+m_anno <- match(common_cells, colnames(sce_anno))
+
+table(sce_fastmnn$cluster_louvain[m_fastmnn],
+      sce_anno$cluster_id[m_anno])
+
+plotUMAP(sce_anno, colour_by="cluster_id")
+
+# some code from
+# 
+
+mgs <- list(
+    astrocytes = c("Aqp4", "Gfap", "Fgfr3"),
+    endothelial = c("Cldn5","Nostrin"),
+    microglia = c("C1qb","Tyrobp"),
+    neuronal = c("Snap25", "Stmn2"),
+    neuronal_excitatory = "Slc17a7",
+    neuronal_inhibitory = "Gad1",
+    oligodendrocyte = "Opalin",
+    OPC = "Pdgfra",
+    pericytes = c("Pdgfrb", "Notch3", "Cspg4"))
+
+mgs <- lapply(mgs, sapply, function(g) 
+    grep(paste0(g, "$"), rownames(sce_anno), value = TRUE))
+
+gs <- gsub(".*\\.", "", unlist(mgs))
+ks <- rep.int(names(mgs), vapply(mgs, length, numeric(1)))
+labs <- sprintf("%s(%s)", gs, ks)
+
+
+# exercise: 
+pheatmap [markers]
+```
+
+
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```

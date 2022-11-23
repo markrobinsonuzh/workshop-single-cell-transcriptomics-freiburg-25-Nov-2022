@@ -1,0 +1,72 @@
+---
+title: "05_multisample-qc-integration"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(SingleR)
+library(scRNAseq)
+library(scater)
+
+data_dir <- "data/output"
+```
+
+# read in dataset, read in reference
+
+```{r}
+# already-manually-annotated dataset
+sce_anno <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
+
+# extract gene names from our dataset
+ss <- strsplit(rownames(sce_anno),".", fixed=TRUE)
+rowData(sce_anno)$gene_name <- sapply(ss, .subset, 2)
+rowData(sce_anno)$gene_id <- sapply(ss, .subset, 1)
+rownames(sce_anno) <- rowData(sce_anno)$gene_name
+
+# sceZ <- ZeiselBrainData()
+# sceZ <- logNormCounts(sceZ)
+# gene_intersection <- intersect(gn, rownames(sceZ))
+
+
+ref <- MouseRNAseqData()
+
+gene_intersection <- intersect(rownames(sce_anno), rownames(ref))
+length(gene_intersection)
+
+
+# ?SingleR
+# Row names may be different across entries but 
+# only the intersection will be used, see Details.
+
+system.time(pred <- SingleR(test = sce_anno, ref = ref,
+                            assay.type.test="logcounts",
+                            labels = ref$label.fine))
+
+table(pred$pruned.labels, sce_anno$cluster_id)
+barplot(pred$scores[1,], las=2)
+
+
+system.time(pred <- SingleR(test = sce_anno, ref = ref,
+                            assay.type.test="logcounts",
+                            clusters = sce_anno$integrated_snn_res.0.4,
+                            labels = ref$label.fine))
+
+m <- match(sce_anno$integrated_snn_res.0.4, rownames(pred))
+table(pred$pruned.labels[m], sce_anno$cluster_id)
+
+barplot(pred$scores[1,], las=2)
+
+```
+
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```

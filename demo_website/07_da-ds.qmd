@@ -1,0 +1,114 @@
+---
+title: "05_multisample-qc-integration"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(muscat)
+library(dplyr)
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+# already-manually-annotated dataset
+sce <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
+```
+
+# DA analysis
+
+```{r}
+(subpop_counts <- table(sce$cluster_id, sce$sample_id))
+subpop_prop <- proportions(subpop_counts, margin=1)
+
+library(edgeR)
+
+plotUMAP(sce, colour_by = "cluster_id")
+plotUMAP(sce, colour_by = "group_id")
+
+# https://www.bioconductor.org/packages/release/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf
+
+d <- DGEList(subpop_counts)
+d <- calcNormFactors(d)
+d$samples
+
+ss <- strsplit(colnames(subpop_counts), "_")
+group <- sapply(ss, .subset, 2)
+group <- factor(group, levels = c("WT", "LPS"))
+
+mm <- model.matrix(~group)
+d <- estimateDisp(d,mm)
+
+f <- glmQLFit(d,mm)
+qlf <- glmQLFTest(f,coef=2)
+topTags(qlf)
+
+```
+
+
+# DS analysis
+
+```{r}
+# make WT reference group
+sce$group_id <- relevel(sce$group_id, ref = "WT")
+
+# prep. SCE for 'muscat'
+sce <- prepSCE(sce,
+  kid = "cluster_id",
+  sid = "sample_id",
+  gid = "group_id",
+  drop = FALSE)
+
+(pb <- aggregateData(sce, assay = "counts", 
+    by = c("cluster_id", "sample_id"), fun = "sum"))
+# pseudobulk-level MDS plot
+pbMDS(pb)
+
+
+# run edgeR on pseudobulks
+res <- pbDS(pb, method = "edgeR", verbose = TRUE)
+
+# reformat results
+tbl <- resDS(sce, res, bind = "col")
+
+
+plotExpression(sce, features = "ENSMUSG00000035385.Ccl2", 
+               x = "sample_id")
+
+plotExpression(sce[,sce$cluster_id=="Astrocytes"], 
+               features = "ENSMUSG00000105504.Gbp5", 
+               x = "sample_id")
+
+plotUMAP(sce[,sce$cluster_id=="Astrocytes"],
+         colour_by = "ENSMUSG00000105504.Gbp5",
+         shape_by = "group_id") + facet_wrap(~shape_by)
+
+
+
+# single gene across all clusters
+pbHeatmap(sce, res, g = "ENSMUSG00000035385.Ccl2")
+
+# top-20 in single cluster
+pbHeatmap(sce, res, k = "Astrocytes")
+
+# top-5 in ea. cluster
+pbHeatmap(sce, res, top_n = 5)
+
+
+
+```
+
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```

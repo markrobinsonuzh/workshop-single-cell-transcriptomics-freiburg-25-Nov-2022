@@ -29,8 +29,6 @@ data_dir <- "data/output"
 sce <- readRDS(file.path(data_dir, "sce_qc-filtered.rds"))
 ```
 
-
-
 # normalization, feature selection, dim reduction, clustering
 
 ```{r}

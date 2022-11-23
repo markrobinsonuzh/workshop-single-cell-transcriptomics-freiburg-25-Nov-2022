@@ -1,0 +1,52 @@
+---
+title: "02a_scRNAseq"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(scRNAseq)
+
+```
+
+# find a dataset in the `scRNAseq` collection
+
+```{r}
+ld <- listDatasets()
+
+# probably not a great one
+sce_cortex <- ZhongPrefrontalData()
+table(colData(sce_cortex)$sample)
+
+# possibly a good one
+z <- BachMammaryData()
+table(colData(z)$Sample)
+
+# probably not
+z <- DarmanisBrainData()
+table(colData(z)$experiment_sample_name)
+
+z <- JessaBrainData()
+table(colData(z)$Sample)
+
+z <- HuCortexData()
+table(colData(z)$Sample)
+
+ld %>% as.data.frame %>% filter(Part=="brain")
+```
+
+# save RDS
+
+```{r}
+saveRDS(sce, file = file.path(data_dir, "sce_lightly-filtered.rds"))
+```
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```

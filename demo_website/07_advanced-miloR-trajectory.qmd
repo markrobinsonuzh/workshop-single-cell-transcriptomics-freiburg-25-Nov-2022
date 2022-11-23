@@ -1,0 +1,111 @@
+---
+title: "05_multisample-qc-integration"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# load packages, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(miloR)
+library(dplyr)
+library(patchwork)
+library(scran)
+
+
+data_dir <- "data/output"
+```
+
+# read in dataset
+
+```{r}
+# already-manually-annotated dataset
+sce <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
+```
+
+# `miloR` analysis
+
+```{r}
+sce <- Milo(sce)
+
+sce <- buildGraph(sce, k = 20, d = 30)
+sce <- makeNhoods(sce, k=20, d=30, prop=0.1, refined=TRUE)
+
+plotNhoodSizeHist(sce) 
+
+sce <- countCells(sce,
+                  meta.data=data.frame(colData(sce)),
+                  sample="sample_id")
+sce <- calcNhoodDistance(sce, d=30)
+
+(nhc <- nhoodCounts(sim_milo))
+
+# organize metadata
+md <- data.frame(sample_id = colnames(nhc))
+md$group <- sapply(strsplit(md$sample_id,"_"), .subset, 2)
+rownames(md) <- colnames(nhc)
+md
+
+
+milo_res <- testNhoods(sce, design=~group, design.df=md)
+
+milo_res %>% arrange(SpatialFDR) %>% select(-logCPM,-FDR)
+
+sce <- buildNhoodGraph(sce)
+plotUMAP(sce) + 
+  plotNhoodGraphDA(sce, milo_res, alpha=0.05) +
+  plot_layout(guides="collect")
+
+```
+
+# grab an appropriate example trajectory dataset
+
+```{r}
+
+# some code taken from 
+# https://nbisweden.github.io/workshop-archive/workshop-scRNAseq/2020-01-27/labs/compiled/slingshot/slingshot.html
+
+url <- "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE72nnn/GSE72857/suppl/GSE72857_umitab.txt.gz"
+f <- file.path("data/output",basename(url))
+download.file(url, destfile = f)
+data <- read.delim(gzfile(f), header = TRUE, row.names = 1)
+object.size(data)
+
+data <- Matrix::Matrix(as.matrix(data), sparse = TRUE)
+object.size(data)
+
+# > 166318016/1135197256
+# [1] 0.1465102
+
+
+sce <- SingleCellExperiment(assays = list(counts=data))
+
+mgv <- modelGeneVar(sce)
+hvgs <- getTopHVGs(mgv, n = 2000)
+
+sce <- runPCA(sce, subset_row = hvgs)
+system.time(sce <- runUMAP(sce, dimred = "PCA"))
+
+library(bluster)
+clust1 <- clusterCells(sce, use.dimred="PCA",
+                      BLUSPARAM=NNGraphParam(cluster.fun="louvain",
+                                             k=10))
+
+```
+
+# `slingshot` analysis
+
+```{r}
+sce <- logNormCounts(sce)
+
+```
+
+
+# sessioninfo
+
+```{r}
+sessionInfo()
+```
