@@ -20,13 +20,13 @@ BiocManager::install(version = "3.15")
 pkgs <- c("DropletUtils", "SingleCellExperiment", "SingleR", "batchelor",
           "bluster", "dplyr", "edgeR", "ggplot2", "miloR", "muscat",
           "patchwork", "pheatmap", "scDblFinder", "scRNAseq", "scater",
-          "scran", "scuttle")
+          "scran", "scuttle","slingshot","tradeSeq")
 
 BiocManager::install(pkgs)
 BiocManager::valid()
 ```
 
-# Download data from [here]()
+# Download data from [here](https://www.dropbox.com/s/hwqx49qh6msa6ul/workshop-single-cell-transcriptomics-freiburg-25-Nov-2022-data.zip?dl=0)
 
 # Some useful resources
 

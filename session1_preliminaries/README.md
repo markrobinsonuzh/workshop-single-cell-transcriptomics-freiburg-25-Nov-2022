@@ -9,5 +9,5 @@
 - renku as backup
 
 - exercise: make a website with `quarto` 
-  (1st file: read in 10x data (data provided) OR find dataset in the `scRNAseq` package, save `SummarizedExperiment` in RDS; 
+  (1st file: read in 10x data (data provided) OR find dataset in the `scRNAseq` package, save `SingleCellExperiment` in RDS; 
    2nd file: read RDS, make histograms of the cell counts and gene counts)
