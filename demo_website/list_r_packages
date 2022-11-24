@@ -1,0 +1,1 @@
+grep ^library *.qmd  | awk '{FS=":"; print $2}' | sort | uniq | awk '{FS="("; print $2}' | sed 's/)//g' | sort > R_packages.txt
