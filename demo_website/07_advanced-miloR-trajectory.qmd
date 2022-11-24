@@ -84,6 +84,8 @@ plotUMAP(sce) +
 # data <- Matrix::Matrix(as.matrix(data), sparse = TRUE)
 # object.size(data)
 # saveRDS(data, file=file.path(data_dir, "data-GSE72857.rds"))
+# > 166318016/1135197256
+# [1] 0.1465102
 
 # data <- readRDS(file.path(data_dir, "data-GSE72857.rds"))
 # sce <- SingleCellExperiment(assays = list(counts=data))
@@ -94,10 +96,6 @@ plotUMAP(sce) +
 # wget https://github.com/hemberg-lab/nrg-paper-figures/raw/master/deng-reads.rds
 
 sce <- readRDS(file.path(data_dir, "deng-reads.rds"))
-
-# > 166318016/1135197256
-# [1] 0.1465102
-
 
 mgv <- modelGeneVar(sce)
 hvgs <- getTopHVGs(mgv, n = 1500)

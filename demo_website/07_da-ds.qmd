@@ -81,7 +81,8 @@ tbl <- resDS(sce, res, bind = "col")
 
 
 plotExpression(sce, features = "ENSMUSG00000035385.Ccl2", 
-               x = "sample_id")
+               x = "sample_id", colour_by = "cluster_id", 
+               shape_by = "group_id") + facet_wrap(~colour_by)
 
 plotExpression(sce[,sce$cluster_id=="Astrocytes"], 
                features = "ENSMUSG00000105504.Gbp5", 
@@ -103,6 +104,7 @@ pbHeatmap(sce, res, k = "Astrocytes")
 pbHeatmap(sce, res, top_n = 5)
 
 
+# gene set analyses
 
 ```
 

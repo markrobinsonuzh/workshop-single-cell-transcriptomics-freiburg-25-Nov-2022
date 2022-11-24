@@ -15,13 +15,8 @@ library(SingleCellExperiment)
 library(batchelor)
 library(scran)
 library(pheatmap)
-# library(scuttle)
-# # library(biomaRt)
-# library(bluster)
-# library(dplyr)
-# library(ggplot2)
-# library(scDblFinder)
-# library(readxl)
+library(bluster)
+library(scran)
 
 data_dir <- "data/output"
 ```
@@ -97,7 +92,6 @@ system.time(sce_nocorrect <- runUMAP(sce_nocorrect, dimred="PCA"))
 plotUMAP(sce_nocorrect, colour_by="sample_id")
 
 
-library(batchelor)
 set.seed(101)
 system.time(sce_fastmnn <- fastMNN(sce, 
                                    batch=sce$sample_id,
@@ -107,18 +101,14 @@ sce_fastmnn <- runUMAP(sce_fastmnn, dimred="corrected")
 
 plotUMAP(sce_fastmnn, colour_by="batch")
 
+```
+
+```{r}
 
 # compare to annotated
 sce_anno <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
 
 
-
-```
-
-```{r}
-
-library(bluster)
-library(scran)
 
 # system.time(clust <- clusterCells(sce_fastmnn, use.dimred="corrected"))
 

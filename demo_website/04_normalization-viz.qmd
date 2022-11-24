@@ -42,6 +42,9 @@ hvgs <- getTopHVGs(mv, n=2000)
 
 
 system.time(sce <- runPCA(sce, subset_row=hvgs, ncomponents=30))
+system.time(sce <- runUMAP(sce))
+
+plotUMAP(sce)
 
 # system.time(clust <- clusterCells(sce, use.dimred="PCA"))
 
@@ -63,10 +66,7 @@ mclust::adjustedRandIndex(clust1, clust2)
 colData(sce)$cluster <- as.factor(clust1)
 
 
-system.time(sce <- runUMAP(sce))
-
-
-plotUMAP(sce, colour_by="cluster")
+plotUMAP(sce, colour_by = "cluster", point_size = 5)
 
 ```
 
@@ -75,13 +75,11 @@ plotUMAP(sce, colour_by="cluster")
 ```{r}
 fm <- findMarkers(sce, colData(sce)$cluster, 
                   test.type="wilcox", direction="up",
-                  lfc=1, pval.type="some")
+                  lfc=1, pval.type="some",
+                  full.stats = TRUE)
 
-fm <- findMarkers(sce, colData(sce)$cluster,
-                  test.type="wilcox", direction="up",
-                  lfc=2, pval.type="some")
 
-plotExpression(sce, "ENSMUSG00000052551", 
+plotExpression(sce, "ENSMUSG00000100851", 
                x = "cluster",
                colour_by = "cluster")
 
@@ -89,6 +87,8 @@ plotUMAP(sce, colour_by = "ENSMUSG00000052551")
 
 markers <- lapply(fm, function(u) rownames(u)[1:50])
 markers <- unique(unlist(markers))
+
+
 
 
 # or limma+entropy
@@ -127,6 +127,7 @@ ggplot(df, aes(x=avg, y=entropy, colour=log(F))) +
 
 
 with(df, table(F>50 & entropy<1.5 & range > 3))
+
 
 
 

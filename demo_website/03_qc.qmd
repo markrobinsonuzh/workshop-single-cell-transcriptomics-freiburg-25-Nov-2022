@@ -43,7 +43,11 @@ rowData(sce)[grep("^mt", rowData(sce)$Symbol),]
 is.mito <- grepl("^mt", rowData(sce)$Symbol)
 table(is.mito)
 
+
 qc <- perCellQCMetrics(sce, subsets=list(Mito=is.mito))
+
+colData(sce) <- cbind(colData(sce), qc)
+
 
 head(qc)
 
