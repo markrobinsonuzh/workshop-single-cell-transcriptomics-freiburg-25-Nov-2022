@@ -9,6 +9,25 @@ GitHub repository to collect all the materials for a workshop given by Mark D. R
 - Install [`quarto`](https://quarto.org/docs/get-started/hello/rstudio.html)
 - Connect with [GitHub](https://github.com/) ?
 
+# Install R/BioC packages
+
+```
+# more details at https://bioconductor.org/install/
+install.packages("BiocManager")
+
+BiocManager::install(version = "3.15")
+
+pkgs <- c("DropletUtils", "SingleCellExperiment", "SingleR", "batchelor",
+          "bluster", "dplyr", "edgeR", "ggplot2", "miloR", "muscat",
+          "patchwork", "pheatmap", "scDblFinder", "scRNAseq", "scater",
+          "scran", "scuttle")
+
+BiocManager::install(pkgs)
+BiocManager::valid()
+```
+
+# Download data from [here]()
+
 # Some useful resources
 
 - TODO: add links here
