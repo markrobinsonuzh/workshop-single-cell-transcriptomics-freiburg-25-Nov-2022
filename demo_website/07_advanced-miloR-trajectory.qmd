@@ -17,7 +17,7 @@ library(scran)
 library(scater)
 library(bluster)
 library(slingshot)
-library(scDblFinder)
+library(tradeSeq)
 
 
 data_dir <- "data/output"
@@ -33,6 +33,9 @@ sce <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
 # `miloR` analysis
 
 ```{r}
+
+# https://bioconductor.org/packages/release/bioc/vignettes/miloR/inst/doc/milo_demo.html
+
 sce <- Milo(sce)
 
 sce <- buildGraph(sce, k = 20, d = 30)
@@ -82,32 +85,40 @@ plotUMAP(sce) +
 # object.size(data)
 # saveRDS(data, file=file.path(data_dir, "data-GSE72857.rds"))
 
-data <- readRDS(file.path(data_dir, "data-GSE72857.rds"))
+# data <- readRDS(file.path(data_dir, "data-GSE72857.rds"))
+# sce <- SingleCellExperiment(assays = list(counts=data))
+# sce <- logNormCounts(sce)
+
+
+# in data/output/ dir
+# wget https://github.com/hemberg-lab/nrg-paper-figures/raw/master/deng-reads.rds
+
+sce <- readRDS(file.path(data_dir, "deng-reads.rds"))
 
 # > 166318016/1135197256
 # [1] 0.1465102
 
 
-sce <- SingleCellExperiment(assays = list(counts=data))
-sce <- logNormCounts(sce)
-
 mgv <- modelGeneVar(sce)
-hvgs <- getTopHVGs(mgv, n = 2000)
+hvgs <- getTopHVGs(mgv, n = 1500)
 
-sce <- runPCA(sce, subset_row = hvgs)
+sce <- runPCA(sce, subset_row = hvgs, ncomponents = 5)
 system.time(sce <- runUMAP(sce, dimred = "PCA"))
+
+plotUMAP(sce)
+plotPCA(sce, colour_by = "cell_type1")
 
 # clust1 <- clusterCells(sce, use.dimred="PCA",
 #                       BLUSPARAM=NNGraphParam(cluster.fun="louvain",
 #                                              k=10))
 
-
 clust <- fastcluster(sce, rdname = "PCA", 
-                     k = 40, returnType = "preclusters")
+                     k = 10, returnType = "preclusters")
 
-colData(sce)$clusters <- as.factor(clust)
+colData(sce)$kmeans_15 <- as.factor(clust)
 
-plotUMAP(sce, colour_by="clusters")
+# plotUMAP(sce, colour_by="clusters")
+plotPCA(sce, colour_by="kmeans_15")
 
 
 
@@ -117,8 +128,23 @@ plotUMAP(sce, colour_by="clusters")
 
 ```{r}
 
+# https://bioconductor.org/packages/devel/bioc/vignettes/slingshot/inst/doc/vignette.html
 sce <- slingshot(sce, reducedDim = 'PCA', 
-                 clusterLabels = "clusters")
+                 clusterLabels = "kmeans_15")
+sce
+
+plotPCA(sce, colour_by = "slingPseudotime_1")
+
+
+
+# fit negative binomial GAM
+sce <- fitGAM(sce)
+
+# test for dynamic expression
+ATres <- associationTest(sce)
+
+
+
 ```
 
 # sessioninfo
