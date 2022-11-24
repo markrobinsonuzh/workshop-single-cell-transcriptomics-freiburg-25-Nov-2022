@@ -13,15 +13,14 @@ library(scater)
 library(scDblFinder)
 library(SingleCellExperiment)
 library(batchelor)
-
+library(scran)
+library(pheatmap)
 # library(scuttle)
-# library(scran)
 # # library(biomaRt)
 # library(bluster)
 # library(dplyr)
 # library(ggplot2)
 # library(scDblFinder)
-# library(pheatmap)
 # library(readxl)
 
 data_dir <- "data/output"
@@ -65,16 +64,18 @@ dim(sce)
 sce <- addPerCellQC(sce, subsets = list(Mt = mito))
 sce <- addPerFeatureQC(sce)
 
-ol1 <- isOutlier(sce$total, nmads = 3, type = "both", log = TRUE, batch = sce$sample_id)
-ol2 <- isOutlier(sce$detected, nmads = 3, type = "both", log = TRUE, batch = sce$sample_id)
-ol3 <- isOutlier(sce$subsets_Mt_percent, nmads = 3, type = "higher") & sce$subsets_Mt_percent > 0.08
+ol1 <- isOutlier(sce$total, nmads = 3, type = "both", 
+                 log = TRUE, batch = sce$sample_id)
+ol2 <- isOutlier(sce$detected, nmads = 3, type = "both", 
+                 log = TRUE, batch = sce$sample_id)
+ol3 <- isOutlier(sce$subsets_Mt_percent, nmads = 3, 
+                 type = "higher") & sce$subsets_Mt_percent > 0.08
 
 table(ol1 | ol2 | ol3)
 
 sce <- sce[, !(ol1 | ol2 | ol3)]
 dim(sce)
 ```
-
 
 # integration
 
@@ -113,7 +114,6 @@ sce_anno <- readRDS(file.path(data_dir, "3-SCE_clustered.rds"))
 
 
 ```
-
 
 ```{r}
 
@@ -171,11 +171,9 @@ ks <- rep.int(names(mgs), vapply(mgs, length, numeric(1)))
 labs <- sprintf("%s(%s)", gs, ks)
 
 
-# exercise: 
-pheatmap [markers]
+# # exercise: 
+# pheatmap [markers]
 ```
-
-
 
 # sessioninfo
 

@@ -19,6 +19,8 @@ library(dplyr)
 library(ggplot2)
 library(scDblFinder)
 library(pheatmap)
+library(limma)
+
 
 data_dir <- "data/output"
 ```
@@ -34,9 +36,7 @@ sce <- readRDS(file.path(data_dir, "sce_qc-filtered.rds"))
 ```{r}
 sce <- logNormCounts(sce)
 
-
 mv <- modelGeneVar(sce)
-
 hvgs <- getTopHVGs(mv, n=2000)
 
 
@@ -60,7 +60,7 @@ table(clust1, clust2)
 
 mclust::adjustedRandIndex(clust1, clust2)
 
-colData(sce)$cluster <- as.factor(clust2)
+colData(sce)$cluster <- as.factor(clust1)
 
 
 system.time(sce <- runUMAP(sce))
@@ -97,12 +97,12 @@ expr <- logcounts(sce)
 rr <- rowRanges(expr)
 rr <- rr[,2]-rr[,1]
 
-mm <- model.matrix(~as.factor(clust))
+mm <- model.matrix(~as.factor(clust1))
 f <- lmFit(expr, mm)
 f <- eBayes(f, trend=TRUE)
 
 # counts per gene/cluster
-agg <- aggregateAcrossCells(sce, clust)
+agg <- aggregateAcrossCells(sce, clust1)
 cpms <- edgeR::cpm(agg)
 props <- proportions(cpms, 1)
 
@@ -131,7 +131,7 @@ with(df, table(F>50 & entropy<1.5 & range > 3))
 
 
 # randomly select up to 100 cells in each cluster
-inds <- split(seq_len(ncol(sce)), clust)
+inds <- split(seq_len(ncol(sce)), clust1)
 lapply(inds, head)
 
 inds_s <- lapply(inds, sample, 50, replace=FALSE)
@@ -151,15 +151,17 @@ expr <- as.matrix(expr)
 pheatmap(expr)
 pheatmap(expr, scale="row")
 
-acol = data.frame(cluster = as.factor(clust[s]))
+acol = data.frame(cluster = as.factor(clust1[s]))
 
-
-pheatmap(expr, cluster_cols = FALSE,
-         annotation_col = acol, 
-         clustering_distance_rows = "correlation")
+colnames(expr) <- rownames(acol)
 
 pheatmap(expr, cluster_cols = FALSE,
          annotation_col = acol)
+
+pheatmap(expr, cluster_cols = FALSE,
+         annotation_col = acol,
+         clustering_distance_rows = "correlation")
+
 
 # https://www.biorxiv.org/content/10.1101/2022.05.09.490241v2
 

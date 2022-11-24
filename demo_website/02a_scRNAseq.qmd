@@ -10,7 +10,9 @@ editor_options:
 ```{r}
 #| warning: false
 library(scRNAseq)
+library(dplyr)
 
+data_dir <- "data/output"
 ```
 
 # find a dataset in the `scRNAseq` collection
@@ -36,13 +38,13 @@ table(colData(z)$Sample)
 z <- HuCortexData()
 table(colData(z)$Sample)
 
-ld %>% as.data.frame %>% filter(Part=="brain")
+ld %>% as.data.frame %>% dplyr::filter(Part=="brain")
 ```
 
 # save RDS
 
 ```{r}
-saveRDS(sce, file = file.path(data_dir, "sce_lightly-filtered.rds"))
+# saveRDS(sce, file = file.path(data_dir, "sce_lightly-filtered.rds"))
 ```
 
 # sessioninfo

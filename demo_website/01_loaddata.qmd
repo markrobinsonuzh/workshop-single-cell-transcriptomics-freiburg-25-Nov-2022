@@ -5,7 +5,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 # load packages, set directories
 
 ```{r}
@@ -18,14 +17,11 @@ rawdata_dir <- "data/raw"
 outdata_dir <- "data/output"
 ```
 
-
-
 # read in dataset
 
 ```{r}
 sce <- read10xCounts(file.path(rawdata_dir, "LC026"))
 ```
-
 
 # save RDS
 
@@ -41,19 +37,14 @@ ld <- listDatasets()
 sce_cortex <- ZhongPrefrontalData()
 ```
 
-
 # save RDS
 
 ```{r}
 saveRDS(sce_cortex, file = file.path(outdata_dir, "sce_cortex.rds"))
 ```
 
-
 # sessioninfo
 
 ```{r}
 sessionInfo()
 ```
-
-
-
