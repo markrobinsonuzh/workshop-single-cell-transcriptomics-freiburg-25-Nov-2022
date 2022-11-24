@@ -1,5 +1,5 @@
 ---
-title: "05_multisample-qc-integration"
+title: "07_advanced-miloR-trajectory"
 editor: visual
 editor_options: 
   chunk_output_type: console
@@ -89,6 +89,7 @@ data <- readRDS(file.path(data_dir, "data-GSE72857.rds"))
 
 
 sce <- SingleCellExperiment(assays = list(counts=data))
+sce <- logNormCounts(sce)
 
 mgv <- modelGeneVar(sce)
 hvgs <- getTopHVGs(mgv, n = 2000)
@@ -115,7 +116,6 @@ plotUMAP(sce, colour_by="clusters")
 # `slingshot` analysis
 
 ```{r}
-sce <- logNormCounts(sce)
 
 sce <- slingshot(sce, reducedDim = 'PCA', 
                  clusterLabels = "clusters")
