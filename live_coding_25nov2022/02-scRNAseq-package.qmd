@@ -1,0 +1,37 @@
+---
+title: "02-scRNAseq-package"
+editor_options: 
+  chunk_output_type: console
+---
+
+# load libraries, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(scRNAseq)
+
+processed_dir <- "data/processed"
+```
+
+# look for datasets
+
+```{r}
+ld <- listDatasets()
+```
+
+# load a random dataset
+
+```{r}
+sce <- AztekinTailData()
+```
+
+# save the dataset
+
+```{r}
+saveRDS(sce, file.path(processed_dir, "sce-LC026-unprocessed.rds"))
+```
+
+```{r}
+sessionInfo()
+```

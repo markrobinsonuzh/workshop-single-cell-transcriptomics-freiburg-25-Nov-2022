@@ -1,0 +1,21 @@
+project:
+  type: website
+
+website:
+  title: "live_coding_25nov2022"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: 01-start.qmd
+        text: Start
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
