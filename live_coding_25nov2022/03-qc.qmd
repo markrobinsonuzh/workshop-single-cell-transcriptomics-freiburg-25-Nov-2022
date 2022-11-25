@@ -14,7 +14,6 @@ library(scran)
 library(scuttle)
 library(dplyr)
 library(ggplot2)
-
 processed_dir <- "data/processed"
 ```
 
@@ -32,9 +31,7 @@ sce
 grep("^mt", rowData(sce)$Symbol, value = TRUE)
 is.mito <- grepl("^mt", rowData(sce)$Symbol)
 table(is.mito)
-
 qc <- perCellQCMetrics(sce, subsets=list(MITO=is.mito))
-
 colData(sce) <- cbind(colData(sce), qc)
 ```
 
@@ -43,43 +40,31 @@ colData(sce) <- cbind(colData(sce), qc)
 
 ```{r}
 qcdf <- qc %>% as.data.frame
-
 ggplot(qcdf, aes(x=total, y=detected)) +
   geom_point() +
   scale_x_log10() +
   scale_y_log10() +
   geom_density2d()
-
 ggplot(qcdf, aes(x=total, y=subsets_MITO_percent)) +
   geom_point() +
   scale_x_log10() +
   geom_density2d()
-
 mito_outliers <- isOutlier(qc$subsets_MITO_percent, 
                            nmads = 5,
                            type = "higher")
 total_outliers <- isOutlier(qc$total, 
                            nmads = 5,
                            type = "higher")
-
-
 table(mito_outliers)
-
 ggplot(qcdf, aes(x=total, y=subsets_MITO_percent, colour=mito_outliers)) +
   geom_point() +
   scale_x_log10()
-
 ggplot(qcdf, aes(x=total, y=subsets_MITO_percent, colour=total_outliers)) +
   geom_point() +
   scale_x_log10()
-
-
 keep <- !(mito_outliers | total_outliers)
 table(keep)
-
 sce <- sce[,keep]
-
-
 ```
 
 
