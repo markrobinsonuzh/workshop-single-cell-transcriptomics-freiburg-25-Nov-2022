@@ -1,0 +1,94 @@
+---
+title: "03-qc"
+editor_options: 
+  chunk_output_type: console
+---
+
+# load libraries, set directories
+
+```{r}
+#| warning: false
+library(SingleCellExperiment)
+library(scater)
+library(scran)
+library(scuttle)
+library(dplyr)
+library(ggplot2)
+
+processed_dir <- "data/processed"
+```
+
+# read in SCD
+
+```{r}
+sce <- readRDS(file.path(processed_dir,
+                         "sce-LC026-unprocessed.rds"))
+sce
+```
+
+# find mitochondrial genes, calculate QC metrics
+
+```{r}
+grep("^mt", rowData(sce)$Symbol, value = TRUE)
+is.mito <- grepl("^mt", rowData(sce)$Symbol)
+table(is.mito)
+
+qc <- perCellQCMetrics(sce, subsets=list(MITO=is.mito))
+
+colData(sce) <- cbind(colData(sce), qc)
+```
+
+
+# QC viz
+
+```{r}
+qcdf <- qc %>% as.data.frame
+
+ggplot(qcdf, aes(x=total, y=detected)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  geom_density2d()
+
+ggplot(qcdf, aes(x=total, y=subsets_MITO_percent)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_density2d()
+
+mito_outliers <- isOutlier(qc$subsets_MITO_percent, 
+                           nmads = 5,
+                           type = "higher")
+total_outliers <- isOutlier(qc$total, 
+                           nmads = 5,
+                           type = "higher")
+
+
+table(mito_outliers)
+
+ggplot(qcdf, aes(x=total, y=subsets_MITO_percent, colour=mito_outliers)) +
+  geom_point() +
+  scale_x_log10()
+
+ggplot(qcdf, aes(x=total, y=subsets_MITO_percent, colour=total_outliers)) +
+  geom_point() +
+  scale_x_log10()
+
+
+keep <- !(mito_outliers | total_outliers)
+table(keep)
+
+sce <- sce[,keep]
+
+
+```
+
+
+# save the dataset
+
+```{r}
+saveRDS(sce, file.path(processed_dir, "sce-LC026-qc-filtered.rds"))
+```
+
+```{r}
+sessionInfo()
+```

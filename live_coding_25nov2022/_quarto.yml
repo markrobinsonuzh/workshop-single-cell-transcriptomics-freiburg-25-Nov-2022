@@ -8,7 +8,11 @@ website:
       - href: index.qmd
         text: Home
       - href: 01-start.qmd
-        text: Start
+        text: Read-SCe
+      - href: 01-start.qmd
+        text: scRNAseq-package
+      - href: 03-qc.qmd
+        text: QC
       - about.qmd
 
 format:
