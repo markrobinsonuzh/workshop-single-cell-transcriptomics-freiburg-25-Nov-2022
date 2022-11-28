@@ -1,0 +1,94 @@
+
+What's left:
+
+- [1] marker genes ++++++
+- integration++++
+- [2] diff. abundance / diff. state++++
+- [3] miloR (flexible DA)++++++
+- trajectory analysis (slingshot) +++
+- semi-automatic cell type annotation++++
+
+Mode
+- w/ exercise time++
+- w/o exercise time++++
+
+
+Alternative to running R (python) locally -- cloud instances:
+https://renkulab.io/
+https://renkulab.io/projects/mark.robinson/freiburg-workshop
+
+
+Bioconductor book: https://bioconductor.org/books/release/OSCA/
+
+https://twitter.com/fabian_theis/status/1595810545365565447
+
+
+Papers/sites that I mentioned:
+https://f1000research.com/articles/7-1141/v3
+https://www.biorxiv.org/content/10.1101/2021.06.24.449781v4.full.pdf
+https://genomebiology.biomedcentral.com/articles/10.1186/s13059-020-02136-7
+https://www.biorxiv.org/content/10.1101/2022.05.09.490241v2
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6734286/
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/HelenaLC/muscat-comparison/master/LPS/docs/index.html
+https://www.nature.com/articles/s41467-020-19894-4
+https://www.life-science-alliance.org/content/4/6/e202001004
+https://www.nature.com/articles/s41592-021-01336-8/figures/2
+https://www.nature.com/articles/s41467-020-19894-4
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6734286/
+
+Ice breaker:
+
+What is your git/github/gitlab experience level?
+Ipek: very basic, just getting started with it.
+Yanling : almost no
+Daniel: Only used it to download stuff from other groups or scripts etc. 
+Johanna: no experience
+Rebecca: Only used it to download stuff from other groups or scripts etc. 
+Camila: Very basic
+Usama: not much
+
+What is one of my current projects (in 2 sentences or less)?
+[anon]: Characterisation of FOXG1 syndrome (a neurodevelopmental disorder) in mice and humans. The human part includes cerebral organoids from patients to recapitulate the syndrome and look at the effect of the mutation in different cell types using scRNA- and scATAC-seq.
+[anon]: My project is about neural stem cells in zebrafish larvae. I want to answer the questions if in larval stages neural stem cell niches are already established and how heterogenous these stem cells are by analyzing which NSCs give rise to a specific neuronal group (subpallial dopaminergic neurons)
+[anon]: In my current project I try to generate a single cell data set of catecholaminergic neurons of zebrafish, to get an impression of their heterogeneity and to identify markers for specific telencephalic subgroups.
+[anon] :single nucleus RNAseq with time series for investigating the reorganization of stem cell 
+[anon]: scRNA Seq of Neural Stem and Progenitor Cells: Define cell state specific genesets and reveal transition states.
+[anon]:
+[anon]: Elucidating Mechanism of action for HMAs and ATRA in AML with TP53 gentetics 
+
+What (specific or general) questions do you want answered today?
+[anon] : the difference between different integration method
+[anon]: no specific questions yet
+[anon]: I would be happy to learn about decisions why I should use e.g. a certain way of normalization etc. because I think the most difficult part is to decide “how you analyze” your data (especially when you have no / limited experience).
+[anon]: Comparition between Datasets (eg. different developmental stages), Noise Reduction
+[anon]: No specific questions
+[anon]: I mostly use python and am novice in R so this would be sort of starting point for me in R
+
+https://quarto.org/docs/get-started/
+
+
+Download data from here:
+https://www.dropbox.com/s/hwqx49qh6msa6ul/workshop-single-cell-transcriptomics-freiburg-25-Nov-2022-data.zip?dl=0
+
+https://github.com/markrobinsonuzh/workshop-single-cell-transcriptomics-freiburg-25-Nov-2022
+
+Install R packages:
+# more details at https://bioconductor.org/install/
+install.packages("BiocManager")
+
+BiocManager::install(version = "3.15")
+
+pkgs <- c("DropletUtils", "SingleCellExperiment", "SingleR", "batchelor",
+          "bluster", "dplyr", "edgeR", "ggplot2", "miloR", "muscat",
+          "patchwork", "pheatmap", "scDblFinder", "scRNAseq", "scater",
+          "scran", "scuttle","slingshot","tradeSeq")
+
+BiocManager::install(pkgs)
+BiocManager::valid()
+
+
+
+
+
+
+
