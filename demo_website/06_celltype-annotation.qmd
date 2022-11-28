@@ -48,6 +48,9 @@ system.time(pred <- SingleR(test = sce_anno, ref = ref,
                             assay.type.test="logcounts",
                             labels = ref$label.fine))
 
+
+pred
+
 table(pred$pruned.labels, sce_anno$cluster_id)
 barplot(pred$scores[1,], las=2)
 

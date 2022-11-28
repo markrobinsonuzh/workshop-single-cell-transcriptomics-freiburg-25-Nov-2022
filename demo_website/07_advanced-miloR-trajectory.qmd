@@ -16,6 +16,7 @@ library(patchwork)
 library(scran)
 library(scater)
 library(bluster)
+library(scDblFinder)
 library(slingshot)
 library(tradeSeq)
 
@@ -57,6 +58,7 @@ rownames(md) <- colnames(nhc)
 md
 
 
+ 
 milo_res <- testNhoods(sce, design=~group, design.df=md)
 
 milo_res %>% arrange(SpatialFDR) %>% select(-logCPM,-FDR)

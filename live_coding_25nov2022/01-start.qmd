@@ -1,7 +1,5 @@
 ---
 title: "01-start: read in 10x scRNAseq data"
-editor_options: 
-  chunk_output_type: console
 ---
 
 # load libraries, set directories
@@ -28,8 +26,6 @@ sce
 saveRDS(sce, file.path(processed_dir, "sce-LC026-unprocessed.rds"))
 ```
 
-
 ```{r}
 sessionInfo()
 ```
-

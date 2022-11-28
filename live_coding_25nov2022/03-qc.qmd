@@ -35,7 +35,6 @@ qc <- perCellQCMetrics(sce, subsets=list(MITO=is.mito))
 colData(sce) <- cbind(colData(sce), qc)
 ```
 
-
 # QC viz
 
 ```{r}
@@ -66,7 +65,6 @@ keep <- !(mito_outliers | total_outliers)
 table(keep)
 sce <- sce[,keep]
 ```
-
 
 # save the dataset
 

@@ -17,6 +17,8 @@ library(bluster)
 library(scDblFinder)
 library(ggplot2)
 
+library(pheatmap)
+
 processed_dir <- "data/processed"
 ```
 
@@ -24,51 +26,44 @@ processed_dir <- "data/processed"
 
 ```{r}
 sce <- readRDS(file.path(processed_dir,
-                         "sce-LC026-qc-filtered.rds"))
+                         "sce-LC026-after-clustering.rds"))
 sce
 ```
 
-# normalization, feature selection, dim reduction, clustering
+# find markers
 
 ```{r}
-sce <- logNormCounts(sce)
 
-mv <- modelGeneVar(sce)
-hvgs <- getTopHVGs(mv, n=2000)
+rownames(sce) <- paste0(rowData(sce)$ID, ".",
+                        rowData(sce)$Symbol)
 
-plot(mv$mean, mv$total)
+fm <- findMarkers(sce, groups=colData(sce)$cluster,
+                  test.type = "wilcox", direction = "up",
+                  pval.type = "some")
 
+plotUMAP(sce, colour_by="cluster")
+plotUMAP(sce, colour_by="ENSMUSG00000028399.Ptprd")
 
-sce <- runPCA(sce, subset_row = hvgs, ncomponents=30)
+plotExpression(sce, features="ENSMUSG00000028399.Ptprd",
+               x = "cluster", colour_by = "cluster")
 
-
-
-set.seed(3)
-system.time(sce <- runUMAP(sce))
-
-
-# clustering w/ Louvain
-clust1 <- clusterCells(sce, use.dimred = "PCA",
-                        BLUSPARAM = NNGraphParam(cluster.fun="louvain",
-                                                 k=20))
-colData(sce)$cluster <- clust1
-
-# clustering w/ Pierre-Luc's kmeans+graph
-system.time(clust2 <- fastcluster(sce))
-
-table(clust1, clust2)
 ```
-
 
 # Viz
 
 ```{r}
-plotPCA(sce, colour_by="total")
-plotPCA(sce, colour_by="subsets_MITO_percent")
+genes <- unique(unlist(lapply(fm, 
+                              function(u) rownames(u)[1:15])))
+length(genes)
 
-plotUMAP(sce, colour_by="cluster", point_size=4)
+logcnts <- logcounts(sce)
+
+o <- order(colData(sce)$cluster)
+
+pheatmap(logcnts[genes,o], 
+         cluster_cols = FALSE)
+
 ```
-
 
 # save the dataset
 

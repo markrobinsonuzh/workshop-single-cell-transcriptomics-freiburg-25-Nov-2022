@@ -89,7 +89,8 @@ system.time(sce_nocorrect <- runPCA(sce_nocorrect,
 system.time(sce_nocorrect <- runUMAP(sce_nocorrect, dimred="PCA"))
 
 
-plotUMAP(sce_nocorrect, colour_by="sample_id")
+s <- sample(ncol(sce_nocorrect))
+plotUMAP(sce_nocorrect[,s], colour_by="sample_id")
 
 
 set.seed(101)
@@ -99,7 +100,13 @@ system.time(sce_fastmnn <- fastMNN(sce,
 sce_fastmnn
 sce_fastmnn <- runUMAP(sce_fastmnn, dimred="corrected")
 
-plotUMAP(sce_fastmnn, colour_by="batch")
+colData(sce_fastmnn) <- cbind(colData(sce_fastmnn), colData(sce))
+
+plotUMAP(sce_fastmnn, colour_by="sample_id")
+
+
+s <- sample(ncol(sce_fastmnn))
+plotUMAP(sce_fastmnn[,s], colour_by="batch")
 
 ```
 

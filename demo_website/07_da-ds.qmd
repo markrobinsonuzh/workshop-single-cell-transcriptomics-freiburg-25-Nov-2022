@@ -69,6 +69,7 @@ sce <- prepSCE(sce,
 
 (pb <- aggregateData(sce, assay = "counts", 
     by = c("cluster_id", "sample_id"), fun = "sum"))
+
 # pseudobulk-level MDS plot
 pbMDS(pb)
 
@@ -88,7 +89,7 @@ plotExpression(sce[,sce$cluster_id=="Astrocytes"],
                features = "ENSMUSG00000105504.Gbp5", 
                x = "sample_id")
 
-plotUMAP(sce[,sce$cluster_id=="Astrocytes"],
+plotUMAP(sce,
          colour_by = "ENSMUSG00000105504.Gbp5",
          shape_by = "group_id") + facet_wrap(~shape_by)
 
