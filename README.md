@@ -45,3 +45,11 @@ BiocManager::valid()
 | 14.40-16.00  | trajectories, variations of DA/DS, wrap-up | session4_advanced |
 | 16.00  | hard stop | |
 | 16.13  | ICE75 @ Freiburg Hbf | |
+
+# Notes
+
+- The morning session was done with live coding; see [live_coding_25nov2022](live_coding_25nov2022)
+- The afternoon session was done by going through my preparation scripts; see [demo_website](demo_website)
+- Note to self: send `quarto` install instructions before hand; a few had issues installing it (e.g., needed new RStudio version)
+- Some slides used were posted [here](scrnaseq-freiburg-workshop.pdf)
+- Some notes collected in the YOPAD were cut/paste [here](cut-and-paste-from-yopad.txt)
